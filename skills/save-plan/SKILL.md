@@ -9,80 +9,29 @@ Save a plan or spec as markdown to `~/.planvault/`, associated with the current 
 
 **Arguments**: `$ARGUMENTS` (optional mnemonic name for the plan)
 
-## Storage Layout
-
-```
-~/.planvault/
-├── index.json              # Mapping table: mnemonic → project pwd + metadata
-└── plans/
-    └── <mnemonic>/
-        └── plan.md         # The plan content in markdown
-```
-
-### index.json Schema
-
-```json
-{
-  "<mnemonic>": {
-    "pwd": "/absolute/path/to/project",
-    "description": "One-line summary of the plan",
-    "created_at": "YYYY-MM-DD",
-    "updated_at": "YYYY-MM-DD"
-  }
-}
-```
-
 ## Instructions
 
-1. **Determine project root**:
-   - Run `git rev-parse --show-toplevel 2>/dev/null || pwd` to get the project root path
-   - This becomes the `pwd` value stored in index.json
-
-2. **Ensure storage directory exists**:
-   - Run `mkdir -p ~/.planvault/plans`
-   - If `~/.planvault/index.json` does not exist, initialize it with `{}`
-
-3. **Determine the mnemonic name**:
+1. **Determine the mnemonic name**:
    - If `$ARGUMENTS` is provided, use it as the mnemonic name
    - Otherwise, ask the user for a short mnemonic name (e.g., `api-redesign`, `auth-migration`, `v2-rollout`)
-   - Mnemonic must be lowercase alphanumeric with hyphens only (validate with `^[a-z0-9][a-z0-9-]*$`)
-   - If the mnemonic already exists in index.json, ask the user whether to overwrite or pick a different name
+   - Mnemonic must be lowercase alphanumeric with hyphens only (`^[a-z0-9][a-z0-9-]*$`)
 
-4. **Gather plan content**:
+2. **Gather plan content**:
    - Ask the user for the plan content, or collect it from the current conversation context if a plan was just discussed
-   - The content should be plain markdown
+   - Write the content to a temporary file
 
-5. **Save the plan**:
-   - Create the directory: `mkdir -p ~/.planvault/plans/<mnemonic>`
-   - Write the plan content to `~/.planvault/plans/<mnemonic>/plan.md`
+3. **Generate a one-line description** from the plan content automatically
 
-6. **Update index.json**:
-   - Read the current `~/.planvault/index.json`
-   - Add or update the entry for this mnemonic:
-     ```json
-     {
-       "pwd": "<project-root>",
-       "description": "<one-line summary of the plan>",
-       "created_at": "<today's date>",
-       "updated_at": "<today's date>"
-     }
-     ```
-   - If updating an existing entry, preserve `created_at` and only update `updated_at`
-   - Write the updated index.json back
+4. **Run the save script**:
+   ```bash
+   bash <skill-dir>/scripts/save-plan.sh "<mnemonic>" "<description>" "<temp-plan-file>"
+   ```
+   - Exit code 1: invalid mnemonic format
+   - Exit code 2: mnemonic collision with another project — inform the user and suggest a different name
 
-7. **Confirm to user**:
-   - Report the mnemonic name and storage path
-   - Show how to load it later: `/load-plan <mnemonic>`
-
-## Examples
-
-- `/save-plan` — Prompt for mnemonic, then save the plan
-- `/save-plan api-redesign` — Save the plan under the `api-redesign` mnemonic
-- `/save-plan auth/token-rotation` — Not valid (no slashes); suggest `auth-token-rotation` instead
+5. **On success**: report the mnemonic name and how to load it later (`/load-plan <mnemonic>`)
 
 ## Important
 
-- Mnemonic names must be unique across all projects. If a collision occurs, inform the user which project already uses that mnemonic.
-- Always validate mnemonic format before saving.
-- Never overwrite an existing plan without explicit user confirmation.
-- Generate the one-line description automatically from the plan content; do not ask the user for it separately.
+- If the mnemonic already exists for the SAME project, ask the user whether to overwrite or pick a different name before running the script.
+- Never overwrite without explicit user confirmation.

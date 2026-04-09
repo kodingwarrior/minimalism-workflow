@@ -7,62 +7,53 @@ description: Clean up saved plans from the planvault. This skill should be used 
 
 Remove saved plans from `~/.planvault/`, either selectively or in bulk.
 
-**Arguments**: `$ARGUMENTS` (optional mnemonic name to delete a specific plan)
+**Arguments**: `$ARGUMENTS` (optional: mnemonic name, `--all`, or `--stale`)
 
 ## Instructions
 
-1. **Check planvault exists**:
-   - If `~/.planvault/index.json` does not exist, inform the user that no plans exist and exit
-
-2. **Read the index**:
-   - Read `~/.planvault/index.json` to get the full mapping table
-
-3. **Determine project root**:
-   - Run `git rev-parse --show-toplevel 2>/dev/null || pwd` to get the current project root
-
-4. **Resolve what to clean up**:
+1. **Determine action from arguments**:
 
    **If `$ARGUMENTS` is a specific mnemonic**:
-   - Look up the mnemonic in index.json
-   - If not found, report the error and list available plans
-   - If found, show the plan metadata and ask for confirmation before deleting
+   - First list to confirm it exists, then ask for confirmation before deleting
 
    **If `$ARGUMENTS` is `--all`**:
-   - Filter index.json for all entries where `pwd` matches the current project root
-   - List all matching plans and ask for confirmation before deleting all of them
+   - List plans for current project, ask for confirmation, then delete all
 
    **If `$ARGUMENTS` is `--stale`**:
-   - Find plans with index entries whose plan files are missing, or plan directories with no index entry
-   - List the inconsistencies and ask for confirmation before cleaning them up
+   - Run stale check and ask for confirmation before cleaning
 
    **If `$ARGUMENTS` is empty**:
-   - Filter index.json for all entries where `pwd` matches the current project root
-   - List them in a table with metadata:
-     ```
-     Plans for /path/to/project:
-       1. api-redesign    "REST API v2 redesign plan"          (updated: 2026-04-10)
-       2. auth-migration  "Migrate to OAuth2 token rotation"   (updated: 2026-04-08)
-     ```
-   - Ask the user which plan(s) to delete (by number or mnemonic), or offer `all` to remove everything for this project
+   - List plans for current project and ask which to delete
 
-5. **Delete the plan**:
-   - Remove the plan directory: `rm -rf ~/.planvault/plans/<mnemonic>`
-   - Remove the entry from index.json
-   - Write the updated index.json back
+2. **Available script commands**:
 
-6. **Confirm to user**:
-   - Report which plans were deleted
-   - Show remaining plan count for the project
+   ```bash
+   # List plans for current project (for interactive selection)
+   bash <skill-dir>/scripts/cleanup-plans.sh list
 
-## Examples
+   # Delete a specific plan
+   bash <skill-dir>/scripts/cleanup-plans.sh delete <mnemonic>
 
-- `/cleanup-plans` — List plans for current project, select which to delete
-- `/cleanup-plans api-redesign` — Delete the `api-redesign` plan directly
-- `/cleanup-plans --all` — Delete all plans for the current project
-- `/cleanup-plans --stale` — Find and remove orphaned/inconsistent entries
+   # Find orphaned entries
+   bash <skill-dir>/scripts/cleanup-plans.sh stale
+
+   # Delete all plans for current project
+   bash <skill-dir>/scripts/cleanup-plans.sh project-all <pwd-root>
+   ```
+
+3. **Parse the output**:
+
+   - `NO_PLANS` — Nothing to clean up.
+   - `NO_MATCH` — No plans for current project.
+   - `PLAN\t<num>\t<mnemonic>\t<description>\t<updated_at>` — Plan entry for selection.
+   - `DELETED\t<mnemonic>` — Confirms deletion.
+   - `NOT_FOUND` — Mnemonic doesn't exist.
+   - `REMAINING\t<count>` — Plans remaining after deletion.
+   - `ORPHAN_INDEX\t<mnemonic>\t<pwd>` — Index entry with missing file.
+   - `ORPHAN_DIR\t<name>` — Directory with no index entry.
+   - `CLEAN` — No stale entries found.
 
 ## Important
 
-- Never delete without explicit user confirmation.
-- When deleting multiple plans, list all of them before confirming.
-- If the index becomes empty after cleanup, keep the file as `{}` rather than deleting it.
+- **Never delete without explicit user confirmation.**
+- Always show what will be deleted before running the delete command.
