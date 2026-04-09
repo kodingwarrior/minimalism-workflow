@@ -1,11 +1,11 @@
 ---
 name: release-tag
-description: Create a git tag from the version in package.json. This skill should be used when the user wants to tag a release, create a version tag, or tag the current commit for release.
+description: Create a git tag from the project's version file (package.json, Cargo.toml, pubspec.yaml, build.gradle, etc.). This skill should be used when the user wants to tag a release, create a version tag, or tag the current commit for release.
 ---
 
 # Release Tag
 
-Create an annotated git tag based on the version in `package.json`.
+Create an annotated git tag based on the project's version file.
 
 **Arguments**: `<message>` (optional — annotation message for the tag)
 
@@ -13,8 +13,47 @@ Create an annotated git tag based on the version in `package.json`.
 
 ### Phase 1: Read Version
 
+Detect the project type by checking for version files in this order. Use the
+first match found.
+
+#### Node.js — `package.json`
 1. Read `package.json` and extract the `version` field.
-2. Construct the tag name as `v{version}` (e.g., `v0.3.0`).
+2. Tag: `v{version}` (e.g., `v0.3.0`).
+
+#### Rust — `Cargo.toml`
+1. Read `Cargo.toml` and extract `version` from `[package]`.
+2. Tag: `v{version}`.
+
+#### Flutter / Dart — `pubspec.yaml`
+1. Read `pubspec.yaml` and extract the `version` field (e.g., `1.2.0+3`).
+2. Use only the semver part before `+` for the tag: `v{semver}`.
+
+#### Android — `app/build.gradle.kts` or `app/build.gradle`
+1. Extract the `versionName` value (e.g., `versionName = "1.2.0"`).
+2. Tag: `v{versionName}`.
+3. If the argument indicates a version bump (e.g., the tag doesn't match the
+   current `versionName`), also increment `versionCode` by 1 and update
+   `versionName` to the target version, then commit the change before tagging.
+
+#### Python — `pyproject.toml`
+1. Read `pyproject.toml` and extract `version` from `[project]` or
+   `[tool.poetry]`.
+2. Tag: `v{version}`.
+
+#### Go — `version.go` or git tags
+1. Look for a `Version` constant in common locations (`version.go`,
+   `cmd/version.go`, `internal/version/version.go`).
+2. If not found, fall back to the latest `v*` git tag and suggest the next
+   patch bump.
+3. Tag: `v{version}`.
+
+#### Elixir — `mix.exs`
+1. Read `mix.exs` and extract the `version` field from the `project/0`
+   function.
+2. Tag: `v{version}`.
+
+#### Fallback
+If none of the above files are found, ask the user for the version string.
 
 ### Phase 2: Validate
 
