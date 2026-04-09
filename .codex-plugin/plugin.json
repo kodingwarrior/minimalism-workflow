@@ -1,0 +1,27 @@
+{
+  "name": "kojima-tool",
+  "version": "0.1.0",
+  "description": "Minimal git workflow commands for committing, PRs, release notes, and tagging",
+  "author": {
+    "name": "kodingwarrior",
+    "url": "https://github.com/kodingwarrior"
+  },
+  "repository": "https://github.com/kodingwarrior/minimalism-workflow",
+  "license": "MIT",
+  "keywords": ["git", "workflow", "commit", "pull-request", "release"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Minimalism Workflow",
+    "shortDescription": "Minimal git workflow commands for committing, PRs, release notes, and tagging",
+    "longDescription": "A lightweight plugin providing streamlined git workflow automation: auto-generated commit messages, GitHub PR creation, release note generation from git history, release tagging, and GitHub issue filing.",
+    "developerName": "kodingwarrior",
+    "category": "Productivity",
+    "capabilities": ["Interactive"],
+    "defaultPrompt": [
+      "/commit",
+      "/ghpr",
+      "/release-note"
+    ],
+    "brandColor": "#3B82F6"
+  }
+}

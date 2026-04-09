@@ -1,0 +1,5 @@
+{
+  "name": "minimalism-workflow",
+  "version": "0.1.0",
+  "description": "Minimal git workflow commands for committing, PRs, release notes, and tagging"
+}
