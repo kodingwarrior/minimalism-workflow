@@ -1,11 +1,11 @@
 ---
-name: release-note
-description: Generate a release changelog from git commits between the previous tag and HEAD. This skill should be used when the user wants to write release notes, generate a changelog, or summarize what changed since the last release.
+name: gh-release-note
+description: Generate a release changelog from git commits between the previous tag and HEAD, then create a GitHub release. This skill should be used when the user wants to write release notes, generate a changelog, create a GitHub release, or summarize what changed since the last release.
 ---
 
-# Release Note Generator
+# GitHub Release Note Generator
 
-Generate a structured changelog from git history between the last tag and the current HEAD.
+Generate a structured changelog from git history between the last tag and the current HEAD, then create a GitHub release.
 
 **Arguments**: `<from-ref>` (optional — defaults to the most recent `v*` tag)
 
@@ -28,7 +28,7 @@ Each change is a **standalone bullet** with a full descriptive sentence explaini
    git tag --list 'v*' --sort=-version:refname | head -1
    ```
 2. If `<from-ref>` is provided, use it instead.
-3. Read the current version from `package.json` to use as the release title.
+3. Read the current version from the project's version file (e.g. `package.json`, `Cargo.toml`, `pubspec.yaml`) to use as the release title.
 4. Detect the GitHub repo via `gh repo view --json nameWithOwner -q .nameWithOwner` for constructing issue/PR links.
 5. If no tags exist, use the root commit as the start.
 
@@ -103,6 +103,29 @@ Rules:
 - Link PR/issue numbers as markdown links to the GitHub repo.
 - Feature headings should read like product areas, not code areas.
 
-### Phase 6: Present
+### Phase 6: Confirm with User
 
-Display the formatted changelog to the user. Do not write it to a file unless asked.
+Display the formatted changelog to the user and ask for confirmation before creating the GitHub release using the AskUserQuestion tool:
+
+- Show the generated release notes
+- Ask whether to proceed with creating the GitHub release, or if the user wants to edit first
+- If the user wants edits, incorporate their feedback and re-confirm
+
+### Phase 7: Create GitHub Release
+
+After user confirmation, create the GitHub release using the existing tag.
+
+**Prerequisites**: The tag must already exist (use the `release-tag` skill first if needed). If no tag exists for the current version, inform the user and suggest running `release-tag` first.
+
+1. Determine the tag name from the latest `v*` tag on HEAD:
+   ```bash
+   git tag --points-at HEAD 'v*'
+   ```
+   If no tag points at HEAD, warn the user and suggest running `release-tag` first.
+
+2. Write the changelog body to a temp file to avoid shell escaping issues:
+   ```bash
+   gh release create <tag> --title "<version>" --notes-file <tmpfile>
+   ```
+
+3. Display the release URL to the user upon success.
