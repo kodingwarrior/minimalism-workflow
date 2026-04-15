@@ -44,6 +44,12 @@ Also collect merge commits separately for PR references:
 git log <from-ref>..HEAD --oneline --merges
 ```
 
+Collect PR authors for contributor attribution:
+```bash
+gh pr list --state merged --base <main-branch> --json number,author --limit 100
+```
+This returns each PR's number and author login. Map PR numbers to `@handle` for use in bullets.
+
 ### Phase 3: Categorize
 
 Split commits into two buckets: **Features/Improvements** and **Bug Fixes**.
@@ -68,7 +74,8 @@ This is the most important step.
 4. Each bullet should be a **complete sentence** that:
    - Starts with a past-tense verb (Added, Fixed, Redesigned, etc.)
    - Describes the change from the user's perspective
-   - Ends with linked issue/PR references: `[\#123](https://github.com/{owner}/{repo}/pull/123)`
+   - Ends with linked issue/PR references followed by contributor attribution: `[\#123](https://github.com/{owner}/{repo}/pull/123) by @handle`
+   - Always include `by @handle` using the PR author's GitHub username
 5. Bug fixes go under a single flat "Bug fixes" heading with no sub-grouping.
 
 ### Phase 5: Format
@@ -80,19 +87,19 @@ Released on {date}.
 
 ### {Business impact heading A}
 
-- Added foo feature that allows users to do X. [\#12](https://github.com/{owner}/{repo}/pull/12)
+- Added foo feature that allows users to do X. [\#12](https://github.com/{owner}/{repo}/pull/12) by @alice
 
-- Redesigned the bar page with new editorial layout. [\#34](https://github.com/{owner}/{repo}/pull/34)
+- Redesigned the bar page with new editorial layout. [\#34](https://github.com/{owner}/{repo}/pull/34) by @bob
 
 ### {Business impact heading B}
 
-- Added baz support for qux. [\#56](https://github.com/{owner}/{repo}/issues/56), [\#78](https://github.com/{owner}/{repo}/pull/78)
+- Added baz support for qux. [\#56](https://github.com/{owner}/{repo}/issues/56), [\#78](https://github.com/{owner}/{repo}/pull/78) by @charlie
 
 ### Bug fixes
 
-- Fixed quux not displaying correctly when corge is enabled. [\#90](https://github.com/{owner}/{repo}/pull/90)
+- Fixed quux not displaying correctly when corge is enabled. [\#90](https://github.com/{owner}/{repo}/pull/90) by @dave
 
-- Fixed grault race condition on concurrent requests. [\#91](https://github.com/{owner}/{repo}/pull/91)
+- Fixed grault race condition on concurrent requests. [\#91](https://github.com/{owner}/{repo}/pull/91) by @eve
 ```
 
 Rules:
