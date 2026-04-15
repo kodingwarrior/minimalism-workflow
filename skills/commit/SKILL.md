@@ -31,9 +31,15 @@ git commit -m "$(cat <<'EOF'
 <short summary>
 
 <optional 2-3 sentence explanation>
+
+Co-authored-by: <agenting tool name> <noreply@<vendor domain>>
+Assisted-By: <agenting tool name>(<model name>)
 EOF
 )"
 ```
+
+- The `Co-authored-by` trailer is a git standard recognized by GitHub. Use the agent's name and vendor no-reply email (e.g., `Co-authored-by: Claude Code <noreply@anthropic.com>`).
+- The `Assisted-By` trailer credits the AI agent and model. Use the actual tool name and model you are running as (e.g., `Assisted-By: Claude Code(claude-opus-4-6)`).
 
 5. Show the commit result with `git log -1 --oneline`
 

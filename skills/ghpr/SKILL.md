@@ -33,9 +33,14 @@ Create a pull request with auto-generated title and body from commits.
 gh pr create --base <base-branch> --title "the pr title" --body "$(cat <<'EOF'
 ## Summary
 <2-3 sentence summary explaining what changed and why>
+
+---
+Assisted-By: <agenting tool name>(<model name>)
 EOF
 )"
 ```
+
+The `Assisted-By` footer credits the AI agent that assisted in creating the PR. Use the actual tool name and model you are running as (e.g., `Assisted-By: Claude Code(claude-opus-4-6)`).
 
 6. Return the PR URL to the user.
 
