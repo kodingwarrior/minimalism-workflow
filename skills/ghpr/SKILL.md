@@ -34,6 +34,33 @@ gh pr create --base <base-branch> --title "the pr title" --body "$(cat <<'EOF'
 ## Summary
 <2-3 sentence summary explaining what changed and why>
 
+## Why
+
+- <reason 1>
+  - <detail or example for reason 1>
+- <reason 2>
+  - <detail or example for reason 2>
+- ...
+
+## Before and After (if applicable)
+
+| Before | After |
+|--------|-------|
+| <screenshot or description> | <screenshot or description> |
+| <screenshot or description> | <screenshot or description> |
+....
+
+## Commit History
+- <commit message 1> (<commit link 1>) : <commit description>
+- <commit message 2> : <commit description or link>
+...
+
+## Test Plan
+- [ ] <plan for testing the changes, e.g., "Run unit tests", "Test manually on staging", etc.>
+- [ ] <additional test steps>
+- [ ] ...
+
+
 ---
 Assisted-By: <agenting tool name>(<model name>)
 EOF
@@ -50,5 +77,6 @@ The `Assisted-By` footer credits the AI agent that assisted in creating the PR. 
 
 ## Important
 - Compare against the specified base branch (default: main)
+- If there is upstream remote repository, please ensure that Pull Requests target is the upstream repository, not the forked repository
 - If there are no commits ahead of base, inform the user
 - Don't push to the base branch directly - warn if on base branch
